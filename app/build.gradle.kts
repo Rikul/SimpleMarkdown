@@ -9,19 +9,16 @@ plugins {
     alias(libs.plugins.fladle)
     alias(libs.plugins.triplet.play)
     id("com.wbrawner.releasehelper")
-    alias(libs.plugins.baselineprofile)
 }
 
 val keystoreProperties = Properties()
+var keystoreAvailable = false
 try {
     val keystorePropertiesFile = rootProject.file("keystore.properties")
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+    keystoreAvailable = true
 } catch (ignored: FileNotFoundException) {
     logger.warn("Unable to load keystore properties. Automatic signing won't be available")
-    keystoreProperties["keyAlias"] = ""
-    keystoreProperties["keyPassword"] = ""
-    keystoreProperties["storeFile"] = File.createTempFile("temp", ".tmp").absolutePath
-    keystoreProperties["storePassword"] = ""
     keystoreProperties["publishCredentialsFile"] = ""
 }
 
@@ -51,11 +48,11 @@ android {
     compileSdk = libs.versions.maxSdk.get().toInt()
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     defaultConfig {
         applicationId = "com.wbrawner.simplemarkdown"
@@ -71,16 +68,20 @@ android {
         buildConfigField("String", "ACRA_PASS", "\"${acraProperties["pass"]}\"")
     }
     signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["keyAlias"].toString()
-            keyPassword = keystoreProperties["keyPassword"].toString()
-            storeFile = file(keystoreProperties["storeFile"].toString())
-            storePassword = keystoreProperties["storePassword"].toString()
+        if (keystoreAvailable) {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"].toString()
+                keyPassword = keystoreProperties["keyPassword"].toString()
+                storeFile = file(keystoreProperties["storeFile"].toString())
+                storePassword = keystoreProperties["storePassword"].toString()
+            }
         }
     }
     buildTypes {
         release {
-            signingConfig = signingConfigs["release"]
+            if (keystoreAvailable) {
+                signingConfig = signingConfigs["release"]
+            }
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -98,6 +99,7 @@ android {
     }
     namespace = "com.wbrawner.simplemarkdown"
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 
@@ -122,8 +124,6 @@ play {
 }
 
 dependencies {
-    implementation(libs.androidx.profileinstaller)
-    "baselineProfile"(project(":baselineprofile"))
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.androidx.material3.windowsizeclass)
     implementation(libs.androidx.navigation.compose)
