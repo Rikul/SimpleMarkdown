@@ -71,7 +71,7 @@ android {
         buildConfigField("String", "ACRA_PASS", "\"${acraProperties["pass"]}\"")
     }
     signingConfigs {
-        create("playRelease") {
+        create("release") {
             keyAlias = keystoreProperties["keyAlias"].toString()
             keyPassword = keystoreProperties["keyPassword"].toString()
             storeFile = file(keystoreProperties["storeFile"].toString())
@@ -80,6 +80,7 @@ android {
     }
     buildTypes {
         release {
+            signingConfig = signingConfigs["release"]
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
