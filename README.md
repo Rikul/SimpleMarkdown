@@ -20,7 +20,7 @@ Simple Markdown is an open source Markdown editor.
 
 Using Android Studio is the preferred way to build the project. To build from the command line, you can run
 
-    ./gradlew assembleFreeDebug
+    ./gradlew assembleDebug
 
 ### Crashlytics
 

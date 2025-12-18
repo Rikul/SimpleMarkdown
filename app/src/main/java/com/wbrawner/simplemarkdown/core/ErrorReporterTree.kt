@@ -2,6 +2,7 @@ package com.wbrawner.simplemarkdown.core
 
 import android.app.Application
 import android.util.Log
+import com.wbrawner.simplemarkdown.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.acra.config.httpSender

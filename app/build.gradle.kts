@@ -25,6 +25,17 @@ try {
     keystoreProperties["publishCredentialsFile"] = ""
 }
 
+val acraProperties = Properties()
+try {
+    val acraPropertiesFile = project.file("acra.properties")
+    acraProperties.load(FileInputStream(acraPropertiesFile))
+} catch (ignored: FileNotFoundException) {
+    logger.warn("Unable to load ACRA properties. Error reporting won't be available")
+    acraProperties["url"] = ""
+    acraProperties["user"] = ""
+    acraProperties["pass"] = ""
+}
+
 android {
     packaging {
         resources {
@@ -55,6 +66,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArguments["clearPackageData"] = "true"
         buildConfigField("boolean", "ENABLE_CUSTOM_CSS", "true")
+        buildConfigField("String", "ACRA_URL", "\"${acraProperties["url"]}\"")
+        buildConfigField("String", "ACRA_USER", "\"${acraProperties["user"]}\"")
+        buildConfigField("String", "ACRA_PASS", "\"${acraProperties["pass"]}\"")
     }
     signingConfigs {
         create("playRelease") {
@@ -74,16 +88,7 @@ android {
             buildConfigField("boolean", "ENABLE_CUSTOM_CSS", "false")
         }
     }
-    flavorDimensions.add("platform")
-    productFlavors {
-        create("free") {
-            applicationIdSuffix = ".free"
-            versionNameSuffix = "-free"
-        }
-        create("play") {
-            signingConfig = signingConfigs["playRelease"]
-        }
-    }
+
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
@@ -94,12 +99,7 @@ android {
     buildFeatures {
         compose = true
     }
-    playConfigs {
-        register("play") {
-            enabled.set(true)
-            commit.set(true)
-        }
-    }
+
     lint {
         disable += listOf(
             "AndroidGradlePluginVersion",
@@ -124,8 +124,6 @@ dependencies {
     implementation(libs.androidx.profileinstaller)
     "baselineProfile"(project(":baselineprofile"))
     coreLibraryDesugaring(libs.desugar.jdk.libs)
-    "freeImplementation"(project(":free"))
-    "playImplementation"(project(":non-free"))
     implementation(libs.androidx.material3.windowsizeclass)
     implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
@@ -182,13 +180,15 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.preference.ktx)
     implementation(libs.acra.core)
+    implementation(libs.acra.http)
+    runtimeOnly(libs.acra.limiter)
+    runtimeOnly(libs.acra.advanced.scheduler)
     implementation(libs.timber)
     implementation(libs.kotlinx.coroutines.core)
-    implementation(project(":core"))
 }
 
 fladle {
-    variant.set("playDebug")
+    variant.set("debug")
     useOrchestrator.set(true)
     environmentVariables.put("clearPackageData", "true")
     testTimeout.set("7m")

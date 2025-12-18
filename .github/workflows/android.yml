@@ -39,7 +39,7 @@ jobs:
       - name: Run unit tests
         uses: gradle/gradle-build-action@v3
         with:
-            arguments: testPlayDebugUnitTest
+            arguments: testDebugUnitTest
       - name: Publish JUnit Results
         uses: dorny/test-reporter@v2
         if: always()
@@ -63,7 +63,7 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v3
         with:
-          arguments: assemblePlayDebug assemblePlayDebugAndroidTest
+          arguments: assembleDebug assembleDebugAndroidTest
       - name: Grant execute permission for flank_auth.sh
         run: chmod +x flank_auth.sh
       - name: Add auth for flank
