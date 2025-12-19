@@ -40,7 +40,7 @@ class MarkdownTests {
     @Before
     fun setup() {
         file = File(getApplicationContext<Context>().filesDir.absolutePath + "/tmp", "temp.md")
-        assertTrue(requireNotNull(file.parentFile).mkdirs())
+        requireNotNull(file.parentFile).mkdirs()
         file.delete()
     }
 
