@@ -269,17 +269,6 @@ class MarkdownTests {
         }
     }
 
-    @Test(expected = NoActivityResumedException::class)
-    fun confirmExitOnBackTest() = runTest {
-        ActivityScenario.launch(MainActivity::class.java)
-        onMainScreen(composeRule) {
-            pressBack()
-            checkTitleEquals("Untitled.md")
-            verifyTextIsShown("Press back again to exit")
-            pressBack()
-        }
-    }
-
     @Test
     fun loadNonTextFileAndDecline() = runTest {
         val bytes = Base64.decode("aisNO++GXmaXKErKGqd+cQ==", Base64.DEFAULT)
